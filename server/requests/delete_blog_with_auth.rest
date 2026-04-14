@@ -1,0 +1,20 @@
+@baseUrl = http://localhost:3003/api
+
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "klover",
+  "password": "kklove"
+}
+
+###
+
+@token = {{login.response.body.token}} 
+
+DELETE {{baseUrl}}/blogs/696383bdbf30ead363e7be96
+Authorization: Bearer {{token}}
+
+
+

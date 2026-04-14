@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:3003/api
+
+### 1. Login to get token
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "klover",
+  "password": "kklove"
+}
+
+###
+
+@token = {{login.response.body.token}}
+
+### 2. Create a new blog using the token
+POST {{baseUrl}}/blogs
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "testing the userExtractor middleware",
+  "author": "Test Author",
+  "url": "http://testurl.com",
+  "likes": 15
+}

@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "forehead thoughts",
+  "author": "tanenbaum",
+  "url": "kloklo.com",
+  "likes": 100,
+  "user": "695fd140118704a331875a3c"
+}
