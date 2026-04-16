@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNotificationActions } from './stores/notificationStore'
+import { useBlogActions, useBlogs } from './stores/blogStore'
+
 import {
   Routes,
   Route,
@@ -28,19 +31,17 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [notification, setNotification] = useState({
-    message: null,
-    type: null,
-  })
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const blogs = useBlogs()
   const navigate = useNavigate()
-
+  const { setNotification, clearNotification } = useNotificationActions()
+  const { initialize, setBlogs, createBlog } = useBlogActions()
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+    // blogService.getAll().then((blogs) => setBlogs(blogs))
+    initialize()
+  }, [initialize])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
@@ -52,14 +53,13 @@ const App = () => {
   }, [])
 
   const addBlog = async (blogObject) => {
-    const returnedBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(returnedBlog))
+    await createBlog(blogObject)
     setNotification({
       message: `${blogObject.title} has been created`,
       type: 'success',
     })
     setTimeout(() => {
-      setNotification({ message: null, type: null })
+      clearNotification()
     }, 5000)
     navigate('/')
   }
@@ -76,14 +76,14 @@ const App = () => {
           type: 'success',
         })
         setTimeout(() => {
-          setNotification({ message: null, type: null })
+          clearNotification()
         }, 5000)
         navigate('/')
       } catch (exception) {
         console.error(exception)
         setNotification({ message: 'Failed to delete blog', type: 'error' })
         setTimeout(() => {
-          setNotification({ message: null, type: null })
+          clearNotification()
         }, 5000)
       }
     }
@@ -104,7 +104,7 @@ const App = () => {
       setNotification({ message: 'Wrong credentials', type: 'error' })
 
       setTimeout(() => {
-        setNotification({ message: null, type: null })
+        clearNotification()
       }, 5000)
     }
   }
@@ -169,7 +169,7 @@ const App = () => {
     <div>
       {navBar()}
       <h2>blog app</h2>
-      <Notification message={notification} />
+      <Notification />
       <ErrorBoundary>
         <Routes>
           <Route
