@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNotificationActions } from './stores/notificationStore'
 import { useBlogActions, useBlogs } from './stores/blogStore'
+import { useUserActions, useUser } from './stores/userStore'
 
 import {
   Routes,
@@ -33,11 +34,12 @@ import loginService from './services/login'
 const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const user = useUser()
   const blogs = useBlogs()
   const navigate = useNavigate()
   const { setNotification, clearNotification } = useNotificationActions()
   const { initialize, removeBlog, createBlog, updateBlog } = useBlogActions()
+  const { setUser } = useUserActions()
   useEffect(() => {
     // blogService.getAll().then((blogs) => setBlogs(blogs))
     initialize()
@@ -50,7 +52,7 @@ const App = () => {
       setUser(user)
       blogService.setToken(user.token)
     }
-  }, [])
+  }, [setUser])
 
   const addBlog = async (blogObject) => {
     await createBlog(blogObject)
