@@ -37,7 +37,7 @@ const App = () => {
   const blogs = useBlogs()
   const navigate = useNavigate()
   const { setNotification, clearNotification } = useNotificationActions()
-  const { initialize, setBlogs, createBlog } = useBlogActions()
+  const { initialize, removeBlog, createBlog, updateBlog } = useBlogActions()
   useEffect(() => {
     // blogService.getAll().then((blogs) => setBlogs(blogs))
     initialize()
@@ -67,10 +67,8 @@ const App = () => {
   const deleteBlog = async (id) => {
     if (window.confirm('are you sure you want to delete this blog?')) {
       try {
-        await blogService.remove(id)
-        const newBlogs = blogs.filter((b) => b.id !== id)
+        await removeBlog(id)
         const deletedBlog = blogs.find((b) => b.id === id)
-        setBlogs(newBlogs)
         setNotification({
           message: `${deletedBlog.title} has been deleted`,
           type: 'success',
@@ -116,9 +114,28 @@ const App = () => {
     navigate('/')
   }
 
-  const likeIncrement = async (id, updatedBlog) => {
-    const returnedBlog = await blogService.update(id, updatedBlog)
-    setBlogs(blogs.map((blog) => (blog.id === id ? returnedBlog : blog)))
+  const handleBlogLike = async (id, updatedBlog) => {
+    try {
+      await updateBlog(id, updatedBlog)
+
+      setNotification({
+        message: `you liked "${updatedBlog.title}"`,
+        type: 'success',
+      })
+
+      setTimeout(() => {
+        clearNotification()
+      }, 5000)
+    } catch (error) {
+      setNotification({
+        message: 'Failed to update blog',
+        type: 'error',
+      })
+
+      setTimeout(() => {
+        clearNotification()
+      }, 5000)
+    }
   }
 
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
@@ -181,7 +198,7 @@ const App = () => {
             element={
               <Blog
                 blog={matchedBlog}
-                update={likeIncrement}
+                onLike={handleBlogLike}
                 remove={deleteBlog}
                 user={user}
               />

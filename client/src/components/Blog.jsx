@@ -5,20 +5,20 @@ import {
   CardActions,
   Button,
 } from '@mui/material'
-const Blog = ({ blog, update, remove, user }) => {
+const Blog = ({ blog, onLike, remove, user }) => {
   if (!blog) return null
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
-  }
+  // const blogStyle = {
+  //   paddingTop: 10,
+  //   paddingLeft: 2,
+  //   border: 'solid',
+  //   borderWidth: 1,
+  //   marginBottom: 5,
+  // }
 
-  const IncrementLike = () => {
+  const handleLike = () => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
-    update(blog.id, updatedBlog)
+    onLike(blog.id, updatedBlog)
   }
 
   return (
@@ -50,7 +50,7 @@ const Blog = ({ blog, update, remove, user }) => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={IncrementLike}
+            onClick={handleLike}
             size="small"
           >
             Like

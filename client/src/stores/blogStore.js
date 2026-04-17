@@ -15,6 +15,32 @@ const useBlogStore = create((set) => ({
         blogs: state.blogs.concat(savedBlog),
       }))
     },
+    updateBlog: async (id, changedBlog) => {
+      let previousBlogs
+      set((state) => {
+        previousBlogs = state.blogs
+        return {
+          blogs: state.blogs.map((b) => (b.id === id ? changedBlog : b)),
+        }
+      })
+      try {
+        const updatedBlog = await blogService.update(id, changedBlog)
+        set((state) => ({
+          blogs: state.blogs.map((b) => (b.id === id ? updatedBlog : b)),
+        }))
+      } catch (error) {
+        set(() => ({
+          blogs: previousBlogs,
+        }))
+        throw error
+      }
+    },
+    removeBlog: async (id) => {
+      await blogService.remove(id)
+      set((state) => ({
+        blogs: state.blogs.filter((b) => b.id !== id),
+      }))
+    },
   },
 }))
 
