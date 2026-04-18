@@ -1,17 +1,40 @@
 import { useState } from 'react'
 import { TextField, Button } from '@mui/material'
-const BlogForm = ({ createBlog }) => {
+import { useCreateBlog } from '../hooks/useBlogs'
+import { useNotificationActions } from '../contexts/NotificationContext'
+import { useNavigate } from 'react-router-dom'
+
+const BlogForm = () => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
-
-  const addBlog = (event) => {
+  const createBlogMutation = useCreateBlog()
+  const { showNotification } = useNotificationActions()
+  const navigate = useNavigate()
+  const addBlog = async (event) => {
     event.preventDefault()
-    createBlog({
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-    })
+
+    try {
+      await createBlogMutation.mutateAsync({
+        title: newTitle,
+        author: newAuthor,
+        url: newUrl,
+      })
+
+      showNotification({
+        message: `${newTitle} has been created`,
+        type: 'success',
+      })
+
+      navigate('/')
+    } catch (exception) {
+      console.error(exception)
+      showNotification({
+        message: 'Failed to create blog',
+        type: 'error',
+      })
+    }
+
     setNewTitle('')
     setNewAuthor('')
     setNewUrl('')

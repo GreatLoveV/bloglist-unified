@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNotificationActions } from './contexts/NotificationContext'
+import { useGetBlogs, useCreateBlog } from './hooks/useBlogs'
 import {
   Routes,
   Route,
@@ -29,10 +30,11 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const result = useGetBlogs()
+  const blogs = result.data || []
   const navigate = useNavigate()
   const { showNotification } = useNotificationActions()
 
@@ -40,29 +42,14 @@ const App = () => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
   }, [])
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
-  }, [])
-
-  const addBlog = async (blogObject) => {
-    try {
-      const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
-      showNotification({
-        message: `${blogObject.title} has been created`,
-        type: 'success',
-      })
-      navigate('/')
-    } catch (exception) {
-      console.error(exception)
-      showNotification({ message: 'Failed to create blog', type: 'error' })
-    }
-  }
+  // useEffect(() => {
+  //   const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
+  //   if (loggedUserJSON) {
+  //     const user = JSON.parse(loggedUserJSON)
+  //     setUser(user)
+  //     blogService.setToken(user.token)
+  //   }
+  // }, [])
 
   const deleteBlog = async (id) => {
     if (window.confirm('are you sure you want to delete this blog?')) {
@@ -123,7 +110,7 @@ const App = () => {
     />
   )
 
-  const blogForm = () => <BlogForm createBlog={addBlog} />
+  const blogForm = () => <BlogForm />
 
   const navBar = () => (
     <AppBar position="static">
