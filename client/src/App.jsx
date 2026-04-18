@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { useNotificationActions } from './contexts/NotificationContext'
 import {
   Routes,
   Route,
@@ -29,14 +30,11 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [notification, setNotification] = useState({
-    message: null,
-    type: null,
-  })
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
+  const { showNotification } = useNotificationActions()
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -52,16 +50,18 @@ const App = () => {
   }, [])
 
   const addBlog = async (blogObject) => {
-    const returnedBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(returnedBlog))
-    setNotification({
-      message: `${blogObject.title} has been created`,
-      type: 'success',
-    })
-    setTimeout(() => {
-      setNotification({ message: null, type: null })
-    }, 5000)
-    navigate('/')
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      showNotification({
+        message: `${blogObject.title} has been created`,
+        type: 'success',
+      })
+      navigate('/')
+    } catch (exception) {
+      console.error(exception)
+      showNotification({ message: 'Failed to create blog', type: 'error' })
+    }
   }
 
   const deleteBlog = async (id) => {
@@ -71,20 +71,14 @@ const App = () => {
         const newBlogs = blogs.filter((b) => b.id !== id)
         const deletedBlog = blogs.find((b) => b.id === id)
         setBlogs(newBlogs)
-        setNotification({
+        showNotification({
           message: `${deletedBlog.title} has been deleted`,
           type: 'success',
         })
-        setTimeout(() => {
-          setNotification({ message: null, type: null })
-        }, 5000)
         navigate('/')
       } catch (exception) {
         console.error(exception)
-        setNotification({ message: 'Failed to delete blog', type: 'error' })
-        setTimeout(() => {
-          setNotification({ message: null, type: null })
-        }, 5000)
+        showNotification({ message: 'Failed to delete blog', type: 'error' })
       }
     }
   }
@@ -101,11 +95,7 @@ const App = () => {
       navigate('/')
     } catch (exception) {
       console.error('error occurred', exception)
-      setNotification({ message: 'Wrong credentials', type: 'error' })
-
-      setTimeout(() => {
-        setNotification({ message: null, type: null })
-      }, 5000)
+      showNotification({ message: 'Wrong credentials', type: 'error' })
     }
   }
 
@@ -169,7 +159,7 @@ const App = () => {
     <div>
       {navBar()}
       <h2>blog app</h2>
-      <Notification message={notification} />
+      <Notification />
       <ErrorBoundary>
         <Routes>
           <Route

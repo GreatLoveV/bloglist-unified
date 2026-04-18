@@ -1,16 +1,15 @@
 import { Alert } from '@mui/material'
+import { useNotificationValue } from '../contexts/NotificationContext'
 
-const Notification = ({ message }) => {
-  if (!message || message.message === null) {
+const Notification = () => {
+  const notification = useNotificationValue()
+  if (!notification || notification.message === null) {
     return null
   }
 
   return (
-    <Alert
-      style={{ marginBottom: 10, marginBottom: 10 }}
-      severity={message.type}
-    >
-      {message.message}
+    <Alert style={{ marginBottom: 10 }} severity={notification.type}>
+      {notification.message}
     </Alert>
   )
 }
