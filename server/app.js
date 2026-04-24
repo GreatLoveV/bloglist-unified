@@ -18,13 +18,14 @@ mongoose
   .then(() => {
     info('connected to MongoDb')
   })
-  .catch(() => {
-    error('error connecting to MongoDb:', error.message)
+  .catch((err) => {
+    error('error connecting to MongoDb:', err.message)
   })
 
 app.use(express.json())
 app.use(middleware.requestLogger)
 app.use(morgan('tiny'))
+app.use(middleware.allowCrossOrigin)
 app.use(middleware.tokenExtractor)
 
 app.use('/api/blogs', blogsRouter)
@@ -40,7 +41,7 @@ if (process.env.NODE_ENV === 'test'){
 if (process.env.NODE_ENV === 'production'){
   app.use(express.static(path.join(__dirname, '../client/dist')))
 
-  app.get('/*splat', (req, res) => {
+  app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'))
   })
 }

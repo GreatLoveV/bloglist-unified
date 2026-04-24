@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useRef } from 'react'
+import { createContext, useReducer, useRef } from 'react'
 
 const NotificationContext = createContext()
 
@@ -58,11 +58,4 @@ export const NotificationContextProvider = ({ children }) => {
   )
 }
 
-export const useNotificationValue = () =>
-  useContext(NotificationContext).notification
-
-export const useNotificationActions = () => {
-  const { showNotification, clearNotification } =
-    useContext(NotificationContext)
-  return { showNotification, clearNotification }
-}
+export default NotificationContext

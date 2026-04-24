@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { TextField, Button } from '@mui/material'
 import { useCreateBlog } from '../hooks/useBlogs'
-import { useNotificationActions } from '../contexts/NotificationContext'
+import { useNotificationActions } from '../hooks/useNotification'
 import { useNavigate } from 'react-router-dom'
+import { getApiErrorMessage } from '../utils/apiError'
 
 const BlogForm = () => {
   const [newTitle, setNewTitle] = useState('')
@@ -30,7 +31,7 @@ const BlogForm = () => {
     } catch (exception) {
       console.error(exception)
       showNotification({
-        message: 'Failed to create blog',
+        message: getApiErrorMessage(exception, 'Failed to create blog'),
         type: 'error',
       })
     }

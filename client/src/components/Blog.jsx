@@ -5,20 +5,50 @@ import {
   CardActions,
   Button,
 } from '@mui/material'
-const Blog = ({ blog, update, remove, user }) => {
+import { useDeleteBlog, useUpdateBlog } from '../hooks/useBlogs'
+import { useNotificationActions } from '../hooks/useNotification'
+import { useNavigate } from 'react-router-dom'
+
+const Blog = ({ blog, user }) => {
+  const updateBlogMutation = useUpdateBlog()
+  const { showNotification } = useNotificationActions()
+  const deleteBlogMutation = useDeleteBlog()
+  const navigate = useNavigate()
+
   if (!blog) return null
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
+  // const blogStyle = {
+  //   paddingTop: 10,
+  //   paddingLeft: 2,
+  //   border: 'solid',
+  //   borderWidth: 1,
+  //   marginBottom: 5,
+  // }
+
+  const IncrementLike = async (id) => {
+    const updatedBlog = { ...blog, likes: blog.likes + 1 }
+    try {
+      await updateBlogMutation.mutateAsync({ id, updatedBlog })
+    } catch (error) {
+      console.error('Failed to update blog', error)
+      showNotification({ message: 'Failed to update blog', type: 'error' })
+    }
   }
 
-  const IncrementLike = () => {
-    const updatedBlog = { ...blog, likes: blog.likes + 1 }
-    update(blog.id, updatedBlog)
+  const deleteBlog = async (id) => {
+    if (window.confirm('are you sure you want to delete this blog?')) {
+      try {
+        await deleteBlogMutation.mutateAsync(id)
+        showNotification({
+          message: `${blog.title} has been deleted`,
+          type: 'success',
+        })
+        navigate('/')
+      } catch (exception) {
+        console.error(exception)
+        showNotification({ message: 'Failed to delete blog', type: 'error' })
+      }
+    }
   }
 
   return (
@@ -41,7 +71,7 @@ const Blog = ({ blog, update, remove, user }) => {
           {blog.url}
         </Typography>
         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          added by {blog.user.username}
+          added by {blog.user ? blog.user.username : 'unknown'}
         </Typography>
       </CardContent>
       <CardActions sx={{ gap: 1 }}>
@@ -59,7 +89,7 @@ const Blog = ({ blog, update, remove, user }) => {
         {user && blog.user && user.username === blog.user.username && (
           <Button
             variant="outlined"
-            onClick={() => remove(blog.id)}
+            onClick={() => deleteBlog(blog.id)}
             color="error"
             size="small"
           >

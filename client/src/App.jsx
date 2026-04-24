@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
-import { useNotificationActions } from './contexts/NotificationContext'
-import { useGetBlogs, useCreateBlog } from './hooks/useBlogs'
+import { useState } from 'react'
+import { useNotificationActions } from './hooks/useNotification'
+import { useUserActions, useUserValue } from './hooks/useUser'
+import { useGetBlogs } from './hooks/useBlogs'
 import {
   Routes,
   Route,
@@ -26,57 +27,21 @@ import NotFound from './components/NotFound'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
-import blogService from './services/blogs'
-import loginService from './services/login'
 
 const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const user = useUserValue()
   const result = useGetBlogs()
   const blogs = result.data || []
   const navigate = useNavigate()
   const { showNotification } = useNotificationActions()
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
-
-  // useEffect(() => {
-  //   const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-  //   if (loggedUserJSON) {
-  //     const user = JSON.parse(loggedUserJSON)
-  //     setUser(user)
-  //     blogService.setToken(user.token)
-  //   }
-  // }, [])
-
-  const deleteBlog = async (id) => {
-    if (window.confirm('are you sure you want to delete this blog?')) {
-      try {
-        await blogService.remove(id)
-        const newBlogs = blogs.filter((b) => b.id !== id)
-        const deletedBlog = blogs.find((b) => b.id === id)
-        setBlogs(newBlogs)
-        showNotification({
-          message: `${deletedBlog.title} has been deleted`,
-          type: 'success',
-        })
-        navigate('/')
-      } catch (exception) {
-        console.error(exception)
-        showNotification({ message: 'Failed to delete blog', type: 'error' })
-      }
-    }
-  }
+  const { login, logout } = useUserActions()
 
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({ username, password })
-      window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
+      login(username, password)
       setUsername('')
       setPassword('')
       navigate('/')
@@ -87,15 +52,8 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedBloglistUser')
-    blogService.setToken(null)
-    setUser(null)
+    logout()
     navigate('/')
-  }
-
-  const likeIncrement = async (id, updatedBlog) => {
-    const returnedBlog = await blogService.update(id, updatedBlog)
-    setBlogs(blogs.map((blog) => (blog.id === id ? returnedBlog : blog)))
   }
 
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
@@ -155,14 +113,7 @@ const App = () => {
           />
           <Route
             path="/blogs/:id"
-            element={
-              <Blog
-                blog={matchedBlog}
-                update={likeIncrement}
-                remove={deleteBlog}
-                user={user}
-              />
-            }
+            element={<Blog blog={matchedBlog} user={user} />}
           />
           <Route
             path="/create"

@@ -18,3 +18,37 @@ export const useCreateBlog = () => {
     },
   })
 }
+
+export const useUpdateBlog = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, updatedBlog }) => blogService.update(id, updatedBlog),
+    onSuccess: (updatedBlog) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      if (blogs) {
+        const updatedBlogs = blogs.map((b) =>
+          b.id === updatedBlog.id ? updatedBlog : b,
+        )
+        queryClient.setQueryData(['blogs'], updatedBlogs)
+      }
+    },
+  })
+}
+
+export const useDeleteBlog = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: (_, deletedId) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      if (blogs) {
+        queryClient.setQueryData(
+          ['blogs'],
+          blogs.filter((b) => b.id !== deletedId),
+        )
+      }
+    },
+  })
+}

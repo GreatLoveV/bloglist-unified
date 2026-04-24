@@ -1,6 +1,25 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
+const allowCrossOrigin = (req, res, next) => {
+  res.set('Access-Control-Allow-Origin', process.env.FRONTEND_ORIGIN || '*')
+  res.set('Vary', 'Origin')
+  res.set(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  )
+  res.set(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  )
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204)
+  }
+
+  next()
+}
+
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message)
@@ -52,6 +71,7 @@ const userExtractor = async (req, res, next) => {
 }
 
 module.exports = {
+  allowCrossOrigin,
   errorHandler,
   unknownEndpoint,
   requestLogger,
