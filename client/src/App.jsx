@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNotificationActions } from './hooks/useNotification'
 import { useUserActions, useUserValue } from './hooks/useUser'
 import { useGetBlogs } from './hooks/useBlogs'
+import { useGetUsers } from './hooks/useUsers'
 import {
   Routes,
   Route,
@@ -34,8 +35,10 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const user = useUserValue()
-  const result = useGetBlogs()
-  const blogs = result.data || []
+  const resultBlogs = useGetBlogs()
+  const blogs = resultBlogs.data || []
+  const resultUsers = useGetUsers()
+  const users = resultUsers.data || []
   const navigate = useNavigate()
   const { showNotification } = useNotificationActions()
   const { login, logout } = useUserActions()
@@ -102,8 +105,14 @@ const App = () => {
     </AppBar>
   )
 
-  const match = useMatch('/blogs/:id')
-  const matchedBlog = match ? blogs.find((b) => b.id === match.params.id) : null
+  const blogMatch = useMatch('/blogs/:id')
+  const matchedBlog = blogMatch
+    ? blogs.find((b) => b.id === blogMatch.params.id)
+    : null
+  const userMatch = useMatch('/users/:id')
+  const matchedUser = userMatch
+    ? users.find((b) => b.id === userMatch.params.id)
+    : null
 
   return (
     <div>
@@ -146,9 +155,8 @@ const App = () => {
               </div>
             }
           />
-          <Route path="/users/" element={<Users />}>
-            <Route path=":id" element={<User />} />
-          </Route>
+          <Route path="/users/" element={<Users users={users} />} />
+          <Route path="/users/:id" element={<User user={matchedUser} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>
