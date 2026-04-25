@@ -24,6 +24,7 @@ import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import Blog from './components/Blog'
 import Users from './components/Users'
+import User from './components/User'
 import NotFound from './components/NotFound'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
@@ -145,7 +146,9 @@ const App = () => {
               </div>
             }
           />
-          <Route path="/users/*" element={<Users />} />
+          <Route path="/users/" element={<Users />}>
+            <Route path=":id" element={<User />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>

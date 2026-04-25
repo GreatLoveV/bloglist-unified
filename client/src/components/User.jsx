@@ -7,9 +7,15 @@ import {
   ListItemText,
 } from '@mui/material'
 
-const User = ({ user }) => {
+import { useParams, useOutletContext } from 'react-router-dom'
+
+const User = () => {
+  const { id } = useParams()
+  const users = useOutletContext()
+  const user = users.find((u) => u.id === id)
+
   if (!user) {
-    return null
+    return <div>User not found</div>
   }
 
   return (
