@@ -23,6 +23,7 @@ import {
 import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import Blog from './components/Blog'
+import Users from './components/Users'
 import NotFound from './components/NotFound'
 import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
@@ -79,6 +80,9 @@ const App = () => {
         <Button color="inherit" component={Link} to="/">
           blogs
         </Button>
+        <Button color="inherit" component={Link} to="/users">
+          users
+        </Button>
         {user && (
           <Button color="inherit" component={Link} to="/create">
             create new
@@ -103,7 +107,6 @@ const App = () => {
   return (
     <div>
       {navBar()}
-      <h2>blog app</h2>
       <Notification />
       <ErrorBoundary>
         <Routes>
@@ -142,6 +145,7 @@ const App = () => {
               </div>
             }
           />
+          <Route path="/users/*" element={<Users />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>

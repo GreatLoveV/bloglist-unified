@@ -17,18 +17,11 @@ const Blog = ({ blog, user }) => {
 
   if (!blog) return null
 
-  // const blogStyle = {
-  //   paddingTop: 10,
-  //   paddingLeft: 2,
-  //   border: 'solid',
-  //   borderWidth: 1,
-  //   marginBottom: 5,
-  // }
 
-  const IncrementLike = async (id) => {
+  const incrementLike = async () => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
     try {
-      await updateBlogMutation.mutateAsync({ id, updatedBlog })
+      await updateBlogMutation.mutateAsync({ id: blog.id, updatedBlog })
     } catch (error) {
       console.error('Failed to update blog', error)
       showNotification({ message: 'Failed to update blog', type: 'error' })
@@ -80,7 +73,7 @@ const Blog = ({ blog, user }) => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={IncrementLike}
+            onClick={incrementLike}
             size="small"
           >
             Like

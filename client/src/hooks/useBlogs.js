@@ -28,7 +28,7 @@ export const useUpdateBlog = () => {
       const blogs = queryClient.getQueryData(['blogs'])
       if (blogs) {
         const updatedBlogs = blogs.map((b) =>
-          b.id === updatedBlog.id ? updatedBlog : b,
+          b.id === updatedBlog.id ? updatedBlog : b
         )
         queryClient.setQueryData(['blogs'], updatedBlogs)
       }

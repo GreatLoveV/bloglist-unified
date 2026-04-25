@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import useField from '../hooks/useField'
 import { TextField, Button } from '@mui/material'
 import { useCreateBlog } from '../hooks/useBlogs'
 import { useNotificationActions } from '../hooks/useNotification'
@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { getApiErrorMessage } from '../utils/apiError'
 
 const BlogForm = () => {
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
+  const { inputProps: newTitle, reset: resetTitle } = useField('text')
+  const { inputProps: newAuthor, reset: resetAuthor } = useField('text')
+  const { inputProps: newUrl, reset: resetUrl } = useField('text')
+
   const createBlogMutation = useCreateBlog()
   const { showNotification } = useNotificationActions()
   const navigate = useNavigate()
@@ -17,13 +18,13 @@ const BlogForm = () => {
 
     try {
       await createBlogMutation.mutateAsync({
-        title: newTitle,
-        author: newAuthor,
-        url: newUrl,
+        title: newTitle.value,
+        author: newAuthor.value,
+        url: newUrl.value,
       })
 
       showNotification({
-        message: `${newTitle} has been created`,
+        message: `${newTitle.value} has been created`,
         type: 'success',
       })
 
@@ -36,9 +37,9 @@ const BlogForm = () => {
       })
     }
 
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
+    resetTitle()
+    resetAuthor()
+    resetUrl()
   }
   return (
     <div>
@@ -46,29 +47,23 @@ const BlogForm = () => {
         <h2>Create New</h2>
         <div>
           <TextField
+            {...newTitle}
             label="title:"
-            type="text"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
             placeholder="insert title here"
             variant="outlined"
             style={{ marginTop: 10 }}
           />
           <br />
           <TextField
+            {...newAuthor}
             label="author:"
-            type="text"
-            value={newAuthor}
-            onChange={(event) => setNewAuthor(event.target.value)}
             variant="outlined"
             style={{ marginTop: 10 }}
           />
           <br />
           <TextField
+            {...newUrl}
             label="url:"
-            type="text"
-            value={newUrl}
-            onChange={(event) => setNewUrl(event.target.value)}
             variant="outlined"
             style={{ marginTop: 10 }}
           />
