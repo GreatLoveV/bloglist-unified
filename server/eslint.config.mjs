@@ -1,6 +1,7 @@
 import globals from "globals";
 import js from '@eslint/js';
 import stylisticJs from '@stylistic/eslint-plugin'
+import prettierConfig from 'eslint-config-prettier'
 
 export default [
   js.configs.recommended,
@@ -25,6 +26,7 @@ export default [
       'object-curly-spacing': ['error', 'always'],
       'arrow-spacing' : ['error', {before: true, after: true}],
       'no-console': 'off',
+      ...prettierConfig.rules
     },
 
   }

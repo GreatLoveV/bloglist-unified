@@ -1,0 +1,15 @@
+info:
+  name: blog specific
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3003/api/blogs/69eb8818d16248905069c6e2
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

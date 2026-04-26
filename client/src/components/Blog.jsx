@@ -1,22 +1,28 @@
 import {
-  Card,
-  CardContent,
   Typography,
-  CardActions,
   Button,
+  Box,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Paper,
 } from '@mui/material'
-import { useDeleteBlog, useUpdateBlog } from '../hooks/useBlogs'
+import { useDeleteBlog, useUpdateBlog, useAddComment } from '../hooks/useBlogs'
 import { useNotificationActions } from '../hooks/useNotification'
 import { useNavigate } from 'react-router-dom'
+import useField from '../hooks/useField'
 
 const Blog = ({ blog, user }) => {
   const updateBlogMutation = useUpdateBlog()
+  const addCommentMutation = useAddComment()
   const { showNotification } = useNotificationActions()
   const deleteBlogMutation = useDeleteBlog()
   const navigate = useNavigate()
+  const commentField = useField('text')
 
   if (!blog) return null
-
 
   const incrementLike = async () => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
@@ -44,53 +50,115 @@ const Blog = ({ blog, user }) => {
     }
   }
 
+  const handleAddComment = async (event) => {
+    event.preventDefault()
+    const text = commentField.inputProps.value
+    if (!text) return
+
+    try {
+      await addCommentMutation.mutateAsync({ id: blog.id, text })
+      commentField.reset()
+      showNotification({ message: 'Comment added', type: 'success' })
+    } catch (error) {
+      console.error('Failed to add comment', error)
+      showNotification({ message: 'Failed to add comment', type: 'error' })
+    }
+  }
+
   return (
-    <Card sx={{ maxWidth: 345 }}>
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
+    <Box sx={{ p: 2, maxWidth: 800, mx: 'auto' }}>
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h3" gutterBottom>
           {blog.title}
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {blog.author}
+        <Typography variant="h5" color="text.secondary" gutterBottom>
+          by {blog.author}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'primary.main',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
-        >
-          {blog.url}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          added by {blog.user ? blog.user.username : 'unknown'}
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ gap: 1 }}>
-        {blog.likes} likes
-        {user && (
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={incrementLike}
-            size="small"
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            component="a"
+            href={blog.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              color: 'primary.main',
+              textDecoration: 'underline',
+              display: 'block',
+              mb: 1,
+            }}
           >
-            Like
-          </Button>
-        )}
-        {user && blog.user && user.username === blog.user.username && (
-          <Button
-            variant="outlined"
-            onClick={() => deleteBlog(blog.id)}
-            color="error"
-            size="small"
+            {blog.url}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            added by {blog.user ? blog.user.username : 'unknown'}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Typography variant="body1">
+            <strong>{blog.likes}</strong> likes
+          </Typography>
+          {user && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={incrementLike}
+              size="small"
+            >
+              Like
+            </Button>
+          )}
+          {user && blog.user && user.username === blog.user.username && (
+            <Button
+              variant="outlined"
+              onClick={() => deleteBlog(blog.id)}
+              color="error"
+              size="small"
+            >
+              Remove
+            </Button>
+          )}
+        </Box>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Box>
+          <Typography variant="h5" gutterBottom>
+            Comments
+          </Typography>
+
+          <Box
+            component="form"
+            onSubmit={handleAddComment}
+            sx={{ display: 'flex', gap: 1, mb: 3 }}
           >
-            Remove
-          </Button>
-        )}
-      </CardActions>
-    </Card>
+            <TextField
+              {...commentField.inputProps}
+              label="add a comment"
+              size="small"
+              fullWidth
+            />
+            <Button variant="contained" type="submit">
+              add comment
+            </Button>
+          </Box>
+
+          {blog.comments && blog.comments.length > 0 ? (
+            <List dense>
+              {blog.comments.map((c) => (
+                <ListItem key={c.id} divider>
+                  <ListItemText primary={c.text} />
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              no comments yet
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+    </Box>
   )
 }
 

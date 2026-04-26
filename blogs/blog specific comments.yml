@@ -1,0 +1,21 @@
+info:
+  name: blog specific comments
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3003/api/blogs/69eb8818d16248905069c6e2/comments
+  body:
+    type: json
+    data: |-
+      {
+        "text": "wow this blog is so cool"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -6,6 +6,7 @@ import Blog from './Blog'
 const mocks = vi.hoisted(() => ({
   updateMutateAsync: vi.fn(),
   deleteMutateAsync: vi.fn(),
+  addCommentMutateAsync: vi.fn(),
   showNotification: vi.fn(),
   navigate: vi.fn(),
 }))
@@ -13,6 +14,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../hooks/useBlogs', () => ({
   useUpdateBlog: () => ({ mutateAsync: mocks.updateMutateAsync }),
   useDeleteBlog: () => ({ mutateAsync: mocks.deleteMutateAsync }),
+  useAddComment: () => ({ mutateAsync: mocks.addCommentMutateAsync }),
 }))
 
 vi.mock('../hooks/useNotification', () => ({
@@ -48,9 +50,10 @@ test('Blog information and the number of likes are displayed to unauthenticated 
   render(<Blog blog={blog} />)
 
   expect(screen.getByText('Wael 2% body fat')).toBeInTheDocument()
-  expect(screen.getByText('Wael')).toBeInTheDocument()
+  expect(screen.getByText(/by Wael/)).toBeInTheDocument()
   expect(screen.getByText(blog.url)).toBeInTheDocument()
-  expect(screen.getByText(/5 likes/)).toBeInTheDocument()
+  expect(screen.getByText(/likes/)).toBeInTheDocument()
+  expect(screen.getByText('5')).toBeInTheDocument()
 
   const likeButton = screen.queryByRole('button', { name: /like/i })
   const removeButton = screen.queryByRole('button', { name: /remove/i })
