@@ -24,6 +24,7 @@ import {
 import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import Blog from './components/Blog'
+import BlogList from './components/BlogList'
 import Users from './components/Users'
 import User from './components/User'
 import NotFound from './components/NotFound'
@@ -132,29 +133,7 @@ const App = () => {
             path="/create"
             element={user ? blogForm() : <Navigate replace to="/login" />}
           />
-          <Route
-            path="/"
-            element={
-              <div>
-                {sortedBlogs.map((blog) => (
-                  <div
-                    key={blog.id}
-                    style={{
-                      paddingTop: 10,
-                      paddingLeft: 2,
-                      border: 'solid',
-                      borderWidth: 1,
-                      marginBottom: 5,
-                    }}
-                  >
-                    <Link to={`/blogs/${blog.id}`}>
-                      {blog.title} {blog.author}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            }
-          />
+          <Route path="/" element={<BlogList blogs={sortedBlogs} />} />
           <Route path="/users/" element={<Users users={users} />} />
           <Route path="/users/:id" element={<User user={matchedUser} />} />
           <Route path="*" element={<NotFound />} />

@@ -8,7 +8,10 @@ const Notification = () => {
   }
 
   return (
-    <Alert style={{ marginBottom: 10 }} severity={notification.type}>
+    <Alert
+      style={{ marginBottom: 10, marginTop: 20 }}
+      severity={notification.type}
+    >
       {notification.message}
     </Alert>
   )
